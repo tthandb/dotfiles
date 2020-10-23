@@ -12,7 +12,7 @@ dir=/home/binhnd/dotfiles
 olddir=/home/binhnd/dotfiles_old
 
 # list of files/folders to symlink in homedir
-files=".bashrc .vimrc .zshrc"
+files=".bashrc .vimrc .zshrc .gitconfig"
 
 ##########
 
