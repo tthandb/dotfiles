@@ -59,7 +59,7 @@ vnoremap <A-k> :m '<-2<CR>gv=gv"
 
 "Use system clipboard
 set clipboard=unnamedplus
-:inoremap p "+pa
+":inoremap p "+pa
 noremap y "+y
 noremap yy "+yy
 noremap Y "+y$

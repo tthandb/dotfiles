@@ -7,9 +7,9 @@
 ########## Variables
 
 # dotfiles directory
-dir=/home/binhnd/dotfiles
+dir=/home/hdoop/dotfiles
 # old dotfiles backup directory
-olddir=/home/binhnd/dotfiles_old
+olddir=/home/hdoop/dotfiles_old
 
 # list of files/folders to symlink in homedir
 files=".bashrc .vimrc .zshrc .gitconfig"
