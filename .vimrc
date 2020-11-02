@@ -22,7 +22,6 @@ Plug 'Shougo/neosnippet.vim'
 Plug 'Shougo/neosnippet-snippets'
 call plug#end()
 
-"--------------------------------------------------------------------
 "---------------GLOBAL CONFIG----------------------------------------
 let mapleader = "\<Space>"
 
@@ -58,7 +57,15 @@ inoremap <A-k> <Esc>:m .-2<CR>==gi
 vnoremap <A-j> :m '>+1<CR>gv=gv
 vnoremap <A-k> :m '<-2<CR>gv=gv"
 
-"-------------------------------------------------------------------------
+"Use system clipboard
+set clipboard=unnamedplus
+:inoremap p "+pa
+noremap y "+y
+noremap yy "+yy
+noremap Y "+y$
+noremap x "+x
+noremap dd "+dd
+noremap D "+D
 "-----------------CONFIG PLUGIN-------------------------------------------
 "Prettier
 let g:prettier#exec_cmd_async = 1
@@ -94,7 +101,7 @@ let g:fzf_action = {
   \}
 
 "coc.nvim
-let g:coc_global_extensions = ['coc-emmet', 'coc-css', 'coc-html', 'coc-json', 'coc-prettier', 'coc-tsserver']
+"let g:coc_global_extensions = ['coc-emmet', 'coc-css', 'coc-html', 'coc-json', 'coc-prettier', 'coc-tsserver']
 
 "coc-prettier
 command! -nargs=0 Prettier :CocCommand prettier.formatFile
