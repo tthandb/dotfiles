@@ -139,11 +139,3 @@ fi
 [ -f ~/.fzf.bash ] && source ~/.fzf.bash
 alias dotfiles='/usr/bin/git --git-dir=/home/binhnd/.dotfiles/ --work-tree=/home/binhnd'
 alias dotfiles='/usr/bin/git --git-dir=/home/hdoop/.dotfiles/ --work-tree=/home/hdoop'
-alias dotfiles='/usr/bin/git --git-dir=/home/hdoop/.dotfiles/ --work-tree=/home/hdoop'
-alias dotfiles='/usr/bin/git --git-dir=/home/hdoop/.dotfiles/ --work-tree=/home/hdoop'
-alias dotfiles='/usr/bin/git --git-dir=/home/hdoop/.dotfiles/ --work-tree=/home/hdoop'
-alias dotfiles='/usr/bin/git --git-dir=/home/hdoop/.dotfiles/ --work-tree=/home/hdoop'
-alias dotfiles='/usr/bin/git --git-dir=/home/hdoop/.dotfiles/ --work-tree=/home/hdoop'
-alias dotfiles='/usr/bin/git --git-dir=/home/hdoop/.dotfiles/ --work-tree=/home/hdoop'
-alias dotfiles='/usr/bin/git --git-dir=/home/hdoop/.dotfiles/ --work-tree=/home/hdoop'
-alias dotfiles='/usr/bin/git --git-dir=/home/hdoop/.dotfiles/ --work-tree=/home/hdoop'

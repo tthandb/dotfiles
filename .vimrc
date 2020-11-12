@@ -2,6 +2,7 @@ call plug#begin('~/.vim/plugged')
 Plug 'scrooloose/nerdtree' 
 "Colorschemes
 Plug 'morhetz/gruvbox' 
+Plug 'sonph/onehalf', {'rtp': 'vim/'}
 
 Plug 'neoclide/coc.nvim', {'branch': 'release'}
 Plug 'leafgarland/typescript-vim'
@@ -45,9 +46,7 @@ set softtabstop=0
 set shiftwidth=4
 
 set encoding=UTF-8
-" open new split panes to right and below
- set splitright
- set splitbelow
+
 
 "Mappings to move lines
 nnoremap <A-j> :m .+1<CR>==
@@ -59,6 +58,7 @@ vnoremap <A-k> :m '<-2<CR>gv=gv"
 
 "Use system clipboard
 set clipboard=unnamedplus
+
 ":inoremap p "+pa
 noremap y "+y
 noremap yy "+yy
@@ -67,6 +67,7 @@ noremap x "+x
 noremap dd "+dd
 noremap D "+D
 "-----------------CONFIG PLUGIN-------------------------------------------
+"
 "Prettier
 let g:prettier#exec_cmd_async = 1
 "NERDTree
@@ -84,12 +85,10 @@ let g:NERDTreeShowBookmarks=1
 
 "Theme 
 syntax enable
-set background=dark
-colorscheme gruvbox
-highlight Normal     ctermbg=NONE guibg=NONE
-highlight LineNr     ctermbg=NONE guibg=NONE
-highlight SignColumn ctermbg=NONE guibg=NONE
-"set termguicolors
+colorscheme onehalfdark
+"highlight Normal     ctermbg=NONE guibg=NONE
+"highlight LineNr     ctermbg=NONE guibg=NONE
+"highlight SignColumn ctermbg=NONE guibg=NONE
 
 "fzf
 "
@@ -108,7 +107,7 @@ command! -nargs=0 Prettier :CocCommand prettier.formatFile
 
 "airline
 let g:airline#extensions#tabline#enabled = 1
-let g:airline_theme='gruvbox'
+let g:airline_theme='onehalflight'
 let g:airline_powerline_fonts = 1
 let g:airline#extensions#ale#enabled = 1
 let g:airline#extensions#tabline#formatter = 'unique_tail'
