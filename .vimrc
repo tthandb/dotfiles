@@ -41,7 +41,7 @@ set incsearch
 set hlsearch
 
 set number
-set tabstop=4
+set tabstop=2
 set softtabstop=0
 set shiftwidth=4
 
@@ -107,7 +107,7 @@ command! -nargs=0 Prettier :CocCommand prettier.formatFile
 
 "airline
 let g:airline#extensions#tabline#enabled = 1
-let g:airline_theme='onehalflight'
+let g:airline_theme='onehalfdark'
 let g:airline_powerline_fonts = 1
 let g:airline#extensions#ale#enabled = 1
 let g:airline#extensions#tabline#formatter = 'unique_tail'
