@@ -2,7 +2,6 @@ call plug#begin('~/.vim/plugged')
 Plug 'scrooloose/nerdtree' 
 Plug 'sonph/onehalf', {'rtp': 'vim/'}
 
-Plug 'neoclide/coc.nvim', {'branch': 'release'}
 Plug 'leafgarland/typescript-vim'
 Plug 'peitalin/vim-jsx-typescript' 
 Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }

@@ -153,4 +153,4 @@ else
     fi
 fi
 unset __conda_setup
-# <<< conda initialize <<<
+# <<< conda initialize <<<alias dotfiles='/usr/bin/git --git-dir=/home/hdoop/.dotfiles/ --work-tree=/home/hdoop'
