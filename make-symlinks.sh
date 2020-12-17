@@ -5,11 +5,11 @@
 ############################
 
 ########## Variables
-
+user=$1
 # dotfiles directory
-dir=/home/$USER/dotfiles
+dir=/home/$user/dotfiles
 # old dotfiles backup directory
-olddir=/home/$USER/dotfiles_old
+olddir=/home/$user/dotfiles_old
 
 # list of files/folders to symlink in homedir
 files=".bashrc .vimrc .zshrc .gitconfig"

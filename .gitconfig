@@ -3,3 +3,5 @@
 	email = tthandb@hotmail.com
 [credential]
 	helper = store
+[core]
+	autocrlf = input
