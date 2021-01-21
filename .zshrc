@@ -3,6 +3,12 @@ export ZSH="/home/binhnd/.oh-my-zsh"
 ZSH_THEME="robbyrussell"
 plugins=(git zsh-autosuggestions zsh-z zsh-syntax-highlighting)
 
+#Go path
+export GOROOT=/usr/local/go
+export PATH=$PATH:$GOROOT/bin
+export GOPATH=/home/binhnd/golib
+export PATH=$PATH:$GOPATH/bin
+
 #Java path
 export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
 
@@ -25,9 +31,6 @@ export SPARK_HOME="/home/binhnd/Downloads/Compressed/spark-3.0.1-bin-hadoop2.7"
 export SPARK_HOME=/opt/spark/spark-3.0.1-bin-hadoop3.2
 export PATH=$PATH:$SPARK_HOME/bin:$SPARK_HOME/sbin
 
-#Go path
-export GOROOT=/usr/local/go
-export PATH=$PATH:$GOROOT/bin
 
 source $ZSH/oh-my-zsh.sh
 

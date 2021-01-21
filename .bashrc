@@ -155,7 +155,3 @@ fi
 unset __conda_setup
 # <<< conda initialize <<<
 alias dotfiles='/usr/bin/git --git-dir=/home/binhnd/.dotfiles/ --work-tree=/home/binhnd'
-alias dotfiles='/usr/bin/git --git-dir=/home/binhnd/.dotfiles/ --work-tree=/home/binhnd'
-alias dotfiles='/usr/bin/git --git-dir=/home/binhnd/.dotfiles/ --work-tree=/home/binhnd'
-alias dotfiles='/usr/bin/git --git-dir=/home/binhnd/.dotfiles/ --work-tree=/home/binhnd'
-alias dotfiles='/usr/bin/git --git-dir=/home/binhnd/.dotfiles/ --work-tree=/home/binhnd'
