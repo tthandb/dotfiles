@@ -25,7 +25,6 @@ filetype plugin on
 filetype plugin indent on
 autocmd BufEnter * :set scroll=10
 syntax on
-
 set encoding=UTF-8
 set nowrap
 set autoread
@@ -36,9 +35,6 @@ set hlsearch
 set relativenumber
 set smarttab
 set cindent
-set tabstop=2
-set softtabstop=0
-set shiftwidth=2
 set expandtab
 set encoding=UTF-8
 
@@ -55,9 +51,21 @@ set clipboard=unnamedplus
 noremap y "+y
 noremap yy "+yy
 noremap Y "+y$
-noremap x "+x
-noremap dd "+dd
-noremap D "+D
+
+"Indentation
+au BufNewFile,BufRead *.py
+    \ set tabstop=4
+    \ set softtabstop=4
+    \ set shiftwidth=4
+    \ set textwidth=79
+    \ set expandtab
+    \ set autoindent
+    \ set fileformat=unix
+
+au BufNewFile,BufRead *.js, *.html, *.css
+    \ set tabstop=2
+    \ set softtabstop=2
+    \ set shiftwidth=2
 
 "-----------------PLUGIN CONFIGS---------------------"
 
@@ -82,6 +90,8 @@ autocmd VimEnter * if argc() == 0 && !exists("s:std_in") | NERDTree | endif
 "Theme 
 syntax enable
 colorscheme onehalfdark
+hi Normal guibg=NONE ctermbg=NONE
+hi clear LineNR
 
 "fzf
 nnoremap <C-p> :FZF<CR>

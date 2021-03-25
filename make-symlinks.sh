@@ -5,7 +5,7 @@
 ############################
 
 ########## Variables
-user=$1
+user=binhnd
 # dotfiles directory
 dir=/home/$user/dotfiles
 # old dotfiles backup directory
