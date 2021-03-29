@@ -21,6 +21,7 @@ call plug#end()
 "---------------GLOBAL CONFIGS---------------------------------------
 let mapleader = "\<Space>"
 
+set mouse=a
 filetype plugin on
 filetype plugin indent on
 autocmd BufEnter * :set scroll=10
@@ -62,10 +63,9 @@ au BufNewFile,BufRead *.py
     \ set autoindent
     \ set fileformat=unix
 
-au BufNewFile,BufRead *.js, *.html, *.css
-    \ set tabstop=2
-    \ set softtabstop=2
-    \ set shiftwidth=2
+set tabstop=2
+set softtabstop=2
+set shiftwidth=2
 
 "-----------------PLUGIN CONFIGS---------------------"
 
@@ -85,7 +85,7 @@ let g:NERDTreeIgnore=['\.rbc$', '\~$', '\.pyc$', '\.db$', '\.sqlite$', '__pycach
 let g:NERDTreeShowBookmarks=1
 let NERDTreeShowHidden=1
 autocmd StdinReadPre * let s:std_in=1
-autocmd VimEnter * if argc() == 0 && !exists("s:std_in") | NERDTree | endif
+"autocmd VimEnter * if argc() == 0 && !exists("s:std_in") | NERDTree | endif
 
 "Theme 
 syntax enable
