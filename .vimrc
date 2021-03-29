@@ -1,59 +1,98 @@
 call plug#begin('~/.vim/plugged')
-Plug 'scrooloose/nerdtree' 
-Plug 'sonph/onehalf', {'rtp': 'vim/'}
 
-Plug 'leafgarland/typescript-vim'
-Plug 'peitalin/vim-jsx-typescript' 
-Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
-Plug 'junegunn/fzf.vim'
+"Theme and icon
+Plug 'sonph/onehalf', {'rtp': 'vim/'}
+Plug 'ryanoasis/vim-devicons'
+Plug 'Yggdroot/indentLine'
+
+"NERDTree
+Plug 'scrooloose/nerdtree' 
+
+"Vim-airline
 Plug 'vim-airline/vim-airline'
 Plug 'vim-airline/vim-airline-themes'
-Plug 'alvan/vim-closetag'
-Plug 'mxw/vim-jsx'
-Plug 'pangloss/vim-javascript'
-Plug 'jiangmiao/auto-pairs'
+
+"Commenter
 Plug 'scrooloose/nerdcommenter'
-Plug 'w0rp/ale'
-Plug 'ryanoasis/vim-devicons'
+
+"Auto closing tag
+Plug 'Raimondi/delimitMate'
+Plug 'jiangmiao/auto-pairs'
+
+"ALE
+Plug 'dense-analysis/ale'
+
+"Git
 Plug 'airblade/vim-gitgutter'
+
+"Tagbar
+Plug 'majutsushi/tagbar'
+
+"" Snippets
+Plug 'SirVer/ultisnips'
+Plug 'honza/vim-snippets'
+
+"fzf
+if isdirectory('/usr/local/opt/fzf')
+  Plug '/usr/local/opt/fzf' | Plug 'junegunn/fzf.vim'
+else
+  Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --bin' }
+  Plug 'junegunn/fzf.vim'
+endif
+let g:make = 'gmake'
+if exists('make')
+        let g:make = 'make'
+endif
+
+" Go Lang Bundle
+Plug 'fatih/vim-go', {'do': ':GoInstallBinaries'}
+
+" HTML
+Plug 'hail2u/vim-css3-syntax'
+Plug 'gko/vim-coloresque'
+Plug 'tpope/vim-haml'
+Plug 'mattn/emmet-vim'
+" Javascript
+Plug 'jelera/vim-javascript-syntax'
+Plug 'pangloss/vim-javascript'
+
+" Python
+Plug 'davidhalter/jedi-vim'
+Plug 'raimon49/requirements.txt.vim', {'for': 'requirements'}
+
+" TypeScript
+Plug 'leafgarland/typescript-vim'
+Plug 'HerringtonDarkholme/yats.vim'
+
+"JSX
+Plug 'mxw/vim-jsx'
+
+
 call plug#end()
 
-"---------------GLOBAL CONFIGS---------------------------------------
+"----------------------------CONFIGURATIONS---------------------------------------
+filetype plugin indent on
+set mouse=a
+
+" Set mapleader
 let mapleader = "\<Space>"
 
-set mouse=a
-filetype plugin on
-filetype plugin indent on
-autocmd BufEnter * :set scroll=10
-syntax on
-set encoding=UTF-8
-set nowrap
-set autoread
-au CursorHold * checktime
-set incsearch
-set hlsearch
+" Encoding
+set encoding=utf-8
+set fileencoding=utf-8
+set fileencodings=utf-8
+set ttyfast
 
-set relativenumber
+" Fix backspace indent
+set backspace=indent,eol,start
+
+" Indentation
+set tabstop=2
+set softtabstop=2
+set shiftwidth=2
 set smarttab
 set cindent
 set expandtab
-set encoding=UTF-8
-
-"Mappings to move lines
-nnoremap <A-j> :m .+1<CR>==
-nnoremap <A-k> :m .-2<CR>==
-inoremap <A-j> <Esc>:m .+1<CR>==gi
-inoremap <A-k> <Esc>:m .-2<CR>==gi
-vnoremap <A-j> :m '>+1<CR>gv=gv
-vnoremap <A-k> :m '<-2<CR>gv=gv
-
-"Use system clipboard
-set clipboard=unnamedplus
-noremap y "+y
-noremap yy "+yy
-noremap Y "+y$
-
-"Indentation
 au BufNewFile,BufRead *.py
     \ set tabstop=4
     \ set softtabstop=4
@@ -63,35 +102,58 @@ au BufNewFile,BufRead *.py
     \ set autoindent
     \ set fileformat=unix
 
-set tabstop=2
-set softtabstop=2
-set shiftwidth=2
+" Searching
+set hlsearch
+set incsearch
+set ignorecase
+set smartcase
+
+"Mappings to move lines
+nnoremap <A-j> :m .+1<CR>==
+nnoremap <A-k> :m .-2<CR>==
+inoremap <A-j> <Esc>:m .+1<CR>==gi
+inoremap <A-k> <Esc>:m .-2<CR>==gi
+vnoremap <A-j> :m '>+1<CR>gv=gv
+vnoremap <A-k> :m '<-2<CR>gv=gv
+
+"Visual
+autocmd BufEnter * :set scroll=10
+set nowrap
+set autoread
+au CursorHold * checktime
 
 "-----------------PLUGIN CONFIGS---------------------"
+
+"Theme
+syntax on
+set ruler
+set relativenumber
+syntax enable
+colorscheme onehalfdark
+hi Normal guibg=NONE ctermbg=NONE
+hi clear LineNR
+
+"airline
+let g:airline_theme='onehalfdark'
+let g:airline#extensions#branch#enabled = 1
+let g:airline#extensions#ale#enabled = 1
+let g:airline#extensions#tabline#enabled = 1
+let g:airline#extensions#tagbar#enabled = 1
+let g:airline_skip_empty_sections = 1
 
 "NERDTree
 map <C-b> :NERDTreeToggle<CR>
 map <C-i> :NERDTreeFind<CR>
 let NERDTreeShowLineNumbers=1
-autocmd FileType nerdtree setlocal relativenumber
-let g:NERDTreePatternMatchHighlightFullName = 1
-let NERDTreeAutoDeleteBuffer = 1
-let NERDTreeMinimalUI = 1
-let NERDTreeDirArrows = 1
-let g:NERDDefaultAlign = 'left'
-let g:NERDCustomDelimiters = { 'c': { 'left': '/**','right': '*/' } }
 let g:NERDTreeChDirMode=2
-let g:NERDTreeIgnore=['\.rbc$', '\~$', '\.pyc$', '\.db$', '\.sqlite$', '__pycache__', 'node_modules']
+let g:NERDTreeIgnore=['\.rbc$', '\~$', '\.pyc$', '\.db$', '\.sqlite$', '__pycache__']
+let g:NERDTreeSortOrder=['^__\.py$', '\/$', '*', '\.swp$', '\.bak$', '\~$']
 let g:NERDTreeShowBookmarks=1
-let NERDTreeShowHidden=1
-autocmd StdinReadPre * let s:std_in=1
-"autocmd VimEnter * if argc() == 0 && !exists("s:std_in") | NERDTree | endif
+let g:nerdtree_tabs_focus_on_files=1
+let g:NERDTreeMapOpenInTabSilent = '<RightMouse>'
+let g:NERDTreeWinSize = 50
+set wildignore+=*/tmp/*,*.so,*.swp,*.zip,*.pyc,*.db,*.sqlite
 
-"Theme 
-syntax enable
-colorscheme onehalfdark
-hi Normal guibg=NONE ctermbg=NONE
-hi clear LineNR
 
 "fzf
 nnoremap <C-p> :FZF<CR>
@@ -101,36 +163,146 @@ let g:fzf_action = {
   \ 'ctrl-v': 'vsplit'
   \}
 
-"airline
-let g:airline#extensions#tabline#enabled = 1
-let g:airline_theme='onehalfdark'
-let g:airline_powerline_fonts = 1
-let g:airline#extensions#ale#enabled = 1
-let g:airline#extensions#tabline#formatter = 'unique_tail'
-let g:airline#extensions#tabline#enabled = 1
-let g:airline#extensions#tabline#buffer_nr_show = 1
-nnoremap <C-S-tab> :bprevious<CR>
-nnoremap <C-tab>   :bnext<CR>
-
-" auto close tag
-let g:closetag_filenames = '*.html,*.jsx,*.tsx,*.js,*.vue'
-let g:closetag_xhtml_filenames = '*.xhtml,*.jsx,*.js,*.vue'
-let g:closetag_filetypes = 'html,js,xhtml,phtml,jsx,tsx,vue'
-let g:closetag_xhtml_filetypes = 'xhtml,jsx,tsx,js,vue'
-let g:closetag_emptyTags_caseSensitive = 1
-let g:closetag_shortcut = '>'
-
-" commenter
-let g:NERDCustomDelimiters={
-	\ 'javascript': { 'left': '//', 'right': '', 'leftAlt': '{/*', 'rightAlt': '*/}' },
-	\} 
+" snippets
+let g:UltiSnipsExpandTrigger="<tab>"
+let g:UltiSnipsJumpForwardTrigger="<tab>"
+let g:UltiSnipsJumpBackwardTrigger="<c-b>"
+let g:UltiSnipsEditSplit="vertical"
 
 "ale 
-
 let g:ale_fixers = {
  \ 'javascript': ['eslint']
  \ }
 let g:ale_sign_error = '❌'
 let g:ale_sign_warning = '⚠️'
 let g:ale_fix_on_save = 1
+let g:ale_linters = {}
+" Tagbar
+nmap <silent> <F4> :TagbarToggle<CR>
+let g:tagbar_autofocus = 1
 
+"" Remember cursor position
+augroup vimrc-remember-cursor-position
+  autocmd!
+  autocmd BufReadPost * if line("'\"") > 1 && line("'\"") <= line("$") | exe "normal! g`\"" | endif
+augroup END
+
+"-----------------MAPPING---------------------"
+"Use system clipboard
+set clipboard=unnamedplus
+noremap y "+y
+noremap yy "+yy
+noremap Y "+y$
+
+"-----------------LANGUAGES-------------------"
+" go
+" vim-go
+" run :GoBuild or :GoTestCompile based on the go file
+function! s:build_go_files()
+  let l:file = expand('%')
+  if l:file =~# '^\f\+_test\.go$'
+    call go#test#Test(0, 1)
+  elseif l:file =~# '^\f\+\.go$'
+    call go#cmd#Build(0)
+  endif
+endfunction
+
+let g:go_list_type = "quickfix"
+let g:go_fmt_command = "goimports"
+let g:go_fmt_fail_silently = 1
+
+let g:go_highlight_types = 1
+let g:go_highlight_fields = 1
+let g:go_highlight_functions = 1
+let g:go_highlight_methods = 1
+let g:go_highlight_operators = 1
+let g:go_highlight_build_constraints = 1
+let g:go_highlight_structs = 1
+let g:go_highlight_generate_tags = 1
+let g:go_highlight_space_tab_error = 0
+let g:go_highlight_array_whitespace_error = 0
+let g:go_highlight_trailing_whitespace_error = 0
+let g:go_highlight_extra_types = 1
+
+autocmd BufNewFile,BufRead *.go setlocal noexpandtab tabstop=4 shiftwidth=4 softtabstop=4
+
+augroup completion_preview_close
+  autocmd!
+  if v:version > 703 || v:version == 703 && has('patch598')
+    autocmd CompleteDone * if !&previewwindow && &completeopt =~ 'preview' | silent! pclose | endif
+  endif
+augroup END
+
+augroup go
+
+  au!
+  au Filetype go command! -bang A call go#alternate#Switch(<bang>0, 'edit')
+  au Filetype go command! -bang AV call go#alternate#Switch(<bang>0, 'vsplit')
+  au Filetype go command! -bang AS call go#alternate#Switch(<bang>0, 'split')
+  au Filetype go command! -bang AT call go#alternate#Switch(<bang>0, 'tabe')
+
+  au FileType go nmap <Leader>dd <Plug>(go-def-vertical)
+  au FileType go nmap <Leader>dv <Plug>(go-doc-vertical)
+  au FileType go nmap <Leader>db <Plug>(go-doc-browser)
+
+  au FileType go nmap <leader>r  <Plug>(go-run)
+  au FileType go nmap <leader>t  <Plug>(go-test)
+  au FileType go nmap <Leader>gt <Plug>(go-coverage-toggle)
+  au FileType go nmap <Leader>i <Plug>(go-info)
+  au FileType go nmap <silent> <Leader>l <Plug>(go-metalinter)
+  au FileType go nmap <C-g> :GoDecls<cr>
+  au FileType go nmap <leader>dr :GoDeclsDir<cr>
+  au FileType go imap <C-g> <esc>:<C-u>GoDecls<cr>
+  au FileType go imap <leader>dr <esc>:<C-u>GoDeclsDir<cr>
+  au FileType go nmap <leader>rb :<C-u>call <SID>build_go_files()<CR>
+
+augroup END
+
+" ale
+:call extend(g:ale_linters, {
+    \"go": ['golint', 'go vet'], })
+
+
+
+" javascript
+let g:javascript_enable_domhtmlcss = 1
+
+" vim-javascript
+augroup vimrc-javascript
+  autocmd!
+  autocmd FileType javascript setl tabstop=4|setl shiftwidth=4|setl expandtab softtabstop=4
+augroup END
+
+
+" python
+" vim-python
+augroup vimrc-python
+  autocmd!
+  autocmd FileType python setlocal expandtab shiftwidth=4 tabstop=8 colorcolumn=79
+      \ formatoptions+=croq softtabstop=4
+      \ cinwords=if,elif,else,for,while,try,except,finally,def,class,with
+augroup END
+
+" jedi-vim
+let g:jedi#popup_on_dot = 0
+let g:jedi#goto_assignments_command = "<leader>g"
+let g:jedi#goto_definitions_command = "<leader>d"
+let g:jedi#documentation_command = "K"
+let g:jedi#usages_command = "<leader>n"
+let g:jedi#rename_command = "<leader>r"
+let g:jedi#show_call_signatures = "0"
+let g:jedi#completions_command = "<C-Space>"
+let g:jedi#smart_auto_mappings = 0
+
+" ale
+:call extend(g:ale_linters, {
+    \'python': ['flake8'], })
+" vim-airline
+let g:airline#extensions#virtualenv#enabled = 1
+
+" Syntax highlight
+let python_highlight_all = 1
+
+
+" typescript
+let g:yats_host_keyword = 1
