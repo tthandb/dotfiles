@@ -12,7 +12,7 @@ dir=/home/$user/dotfiles
 olddir=/home/$user/dotfiles_old
 
 # list of files/folders to symlink in homedir
-files=".bashrc .vimrc .zshrc .gitconfig"
+files=".bashrc .vimrc .zshrc .gitconfig .p10k.zsh"
 
 ##########
 
