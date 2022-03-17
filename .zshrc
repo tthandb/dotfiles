@@ -20,6 +20,7 @@ export PATH=$PATH:$GOPATH/bin
 export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
 
 export ANDROID_SDK=/home/binhnguyen3/Android/Sdk
+export PATH=$PATH:/home/binhnguyen3/Android/Sdk/platform-tools/
 
 
 source $ZSH/oh-my-zsh.sh
