@@ -5,7 +5,7 @@ if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]
   source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
 fi
 
-export ZSH="/home/binhnguyen3/.oh-my-zsh"
+export ZSH=~/.oh-my-zsh
 
 ZSH_THEME="powerlevel10k/powerlevel10k"
 plugins=(git zsh-autosuggestions zsh-z zsh-syntax-highlighting)
@@ -22,7 +22,7 @@ export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
 export ANDROID_SDK=/home/binhnguyen3/Android/Sdk
 export PATH=$PATH:/home/binhnguyen3/Android/Sdk/platform-tools/
 
-
+ZSH_DISABLE_COMPFIX=true
 source $ZSH/oh-my-zsh.sh
 
 echo "alias dotfiles='/usr/bin/git --git-dir=$HOME/.dotfiles/ --work-tree=$HOME'" >> $HOME/.bashrc
@@ -47,3 +47,4 @@ unset __conda_setup
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
 
 alias luamake=/home/binhnguyen3/Downloads/lua-language-server/3rd/luamake/luamake
+source /usr/local/opt/powerlevel10k/powerlevel10k.zsh-theme

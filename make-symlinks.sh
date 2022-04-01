@@ -7,7 +7,7 @@
 ########## Variables
 user=binhnguyen3
 # dotfiles directory
-dir=/home/$user/dotfiles
+dir=~/dotfiles
 # old dotfiles backup directory
 olddir=/home/$user/dotfiles_old
 
