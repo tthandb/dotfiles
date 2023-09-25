@@ -5,14 +5,14 @@
 ############################
 
 ########## Variables
-user=binhnguyen3
+user=$USER
 # dotfiles directory
 dir=~/dotfiles
 # old dotfiles backup directory
 olddir=/home/$user/dotfiles_old
 
 # list of files/folders to symlink in homedir
-files=".zshrc .gitconfig .p10k.zsh .ideavimrc"
+files=".zshrc .gitconfig .p10k.zsh .ideavimrc .tmux.conf"
 
 ##########
 
