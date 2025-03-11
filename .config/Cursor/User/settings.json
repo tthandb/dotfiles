@@ -1,0 +1,33 @@
+{
+    "window.commandCenter": true,
+    "extensions.experimental.affinity": {
+        "asvetliakov.vscode-neovim": 1
+    },
+    "neovim.neovimPath": "/usr/bin/nvim",
+    "neovim.configuration": {
+        "configPath": "~/.config/nvim/init.lua"
+    },
+    "editor.lineNumbers": "relative",
+    "vim.useSystemClipboard": true,
+    "vscode-neovim.compositeKeys": {
+        "jk": {
+            "command": "vscode-neovim.lua",
+            "args": [
+                [
+                    "local code = require('vscode')",
+                    "code.action('vscode-neovim.escape')",
+                ],
+            ],
+        },
+        "kj": {
+            "command": "vscode-neovim.lua",
+            "args": [
+                [
+                    "local code = require('vscode')",
+                    "code.action('vscode-neovim.escape')",
+                ],
+            ],
+        },
+    },
+    "explorer.confirmDelete": false,
+}
