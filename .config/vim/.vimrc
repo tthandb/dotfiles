@@ -46,7 +46,11 @@ set splitbelow splitright
 set foldmethod=indent
 set foldlevelstart=99
 set nofoldenable
-set diffopt+=internal,algorithm:histogram,indent-heuristic,vertical
+silent! set diffopt+=vertical
+silent! set diffopt+=internal
+silent! set diffopt+=algorithm:histogram
+silent! set diffopt+=indent-heuristic
+silent! set diffopt+=inline:char
 
 " files and undo
 set hidden
