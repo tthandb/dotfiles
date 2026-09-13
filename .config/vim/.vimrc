@@ -1,192 +1,250 @@
-" =============================================================================
-" .vimrc — simplified port of ../nvim/ for traditional Vim 9+
-" Plugins live in ~/.vim/pack/plugins/start/ (run install.sh to populate)
-" =============================================================================
+" compatibility
+set nocompatible
+set cpoptions&vim
 
-" === LEADER & ENCODING =======================================================
+" leader
 let mapleader = " "
+let maplocalleader = " "
 set encoding=utf-8
-set fileencoding=utf-8
 scriptencoding utf-8
 
-" === DISPLAY =================================================================
+" display
 set number relativenumber
 set cursorline
-set termguicolors
-set background=dark
 set nowrap
-set ruler
-set showtabline=2
+set scrolloff=5
+set sidescrolloff=8
 set laststatus=2
-set cmdheight=2
-set pumheight=10
-set conceallevel=0
+set showtabline=1
+set cmdheight=1
+set pumheight=12
+set display=truncate
+set signcolumn=yes
+set shortmess+=c
+set lazyredraw
+set background=dark
 syntax enable
 filetype plugin indent on
 
-" === INDENT ==================================================================
-set tabstop=2 shiftwidth=2
-set expandtab smarttab
-set autoindent smartindent
+if has('termguicolors')
+  let &t_8f = "\<Esc>[38;2;%lu;%lu;%lum"
+  let &t_8b = "\<Esc>[48;2;%lu;%lu;%lum"
+  set termguicolors
+endif
 
-" === SEARCH ==================================================================
+" indent
+set tabstop=2 shiftwidth=2 softtabstop=2
+set expandtab smarttab shiftround
+set autoindent
+
+" search
 set hlsearch incsearch
 set ignorecase smartcase
 
-" === SPLITS ==================================================================
+" splits, folds, diff
 set splitbelow splitright
-
-" === FOLDING =================================================================
 set foldmethod=indent
 set foldlevelstart=99
 set nofoldenable
+set diffopt+=internal,algorithm:histogram,indent-heuristic,vertical
 
-" === MISC ====================================================================
-" ensure spawned commands (fzf/rg/git) find Homebrew binaries
-let $PATH = '/opt/homebrew/bin:/usr/local/bin:' . $PATH
-
+" files and undo
 set hidden
-set mouse=a
-set updatetime=300
-set timeoutlen=500
-set clipboard=unnamed,unnamedplus
-set backspace=indent,eol,start
-set noerrorbells novisualbell
+set autoread
 set nobackup nowritebackup noswapfile
 set undofile
-set undodir=~/.vim/undo
-set signcolumn=yes
-
-" disable netrw — NERDTree handles file browsing
-let g:loaded_netrw = 1
-let g:loaded_netrwPlugin = 1
-
-" ensure undodir exists
+set undodir=$HOME/.vim/undo//
 if !isdirectory(expand('~/.vim/undo'))
-  call mkdir(expand('~/.vim/undo'), 'p')
+  call mkdir(expand('~/.vim/undo'), 'p', 0700)
 endif
 
-" === AUTOCMDS ================================================================
-" disable comment continuation (ftplugins re-add cro, so setlocal per FileType)
-augroup vimrc_formatoptions
+" misc
+set mouse=a
+set updatetime=300
+set timeout timeoutlen=500
+set ttimeout ttimeoutlen=30
+set backspace=indent,eol,start
+set nrformats-=octal
+set history=1000
+set viminfo='500,<200,s64,h
+set noerrorbells novisualbell t_vb=
+set sessionoptions-=options
+set sessionoptions-=folds
+set virtualedit=block
+
+augroup vimrc_format
   autocmd!
-  autocmd FileType * setlocal formatoptions-=c formatoptions-=r formatoptions-=o
+  autocmd FileType * setlocal formatoptions-=c formatoptions-=r
+        \ formatoptions-=o formatoptions+=j
 augroup END
 
-" highlight-on-yank handled by vim-highlightedyank
-let g:highlightedyank_highlight_duration = 200
+" built-in packages
+silent! packadd! matchit
+silent! packadd! cfilter
+silent! packadd! editorconfig
 
-" === BASE KEYMAPS ============================================================
-" Esc alternatives
+" file navigation
+set path=.,,**
+set wildmenu
+set wildmode=longest:full,full
+set wildignorecase
+set wildcharm=<C-z>
+if has('patch-8.2.4325')
+  silent! set wildoptions=pum,fuzzy
+endif
+
+set wildignore+=*/node_modules/*,*/.git/*,*/dist/*,*/build/*,*/target/*
+set wildignore+=*/vendor/*,*/.venv/*,*/venv/*,*/__pycache__/*,*/coverage/*
+set wildignore+=*.o,*.obj,*.pyc,*.class,*.jar,*.zip,*.gz,*.pdf
+set wildignore+=*.png,*.jpg,*.jpeg,*.gif,*.ico,*.woff,*.woff2,*.ttf
+set suffixesadd=.js,.jsx,.ts,.tsx,.mjs,.json,.py,.go,.rb,.java,.css,.scss
+
+nnoremap <leader>f :find <C-z>
+nnoremap <leader>b :buffer <C-z>
+
+" grep
+function! s:SetupGrep() abort
+  if executable('git') && !empty(finddir('.git', getcwd() . ';'))
+    let &grepprg = 'git grep -In --column --no-color --untracked $*'
+    set grepformat=%f:%l:%c:%m
+  else
+    let &grepprg = 'grep -rnI --binary-files=without-match'
+          \ . ' --exclude-dir=.git --exclude-dir=node_modules'
+          \ . ' --exclude-dir=dist --exclude-dir=.venv $* .'
+    set grepformat=%f:%l:%m
+  endif
+endfunction
+
+call s:SetupGrep()
+if exists('##DirChanged')
+  augroup vimrc_grep
+    autocmd!
+    autocmd DirChanged * call s:SetupGrep()
+  augroup END
+endif
+
+function! s:Grep(args) abort
+  execute 'silent! grep! ' . a:args
+  redraw!
+  botright cwindow
+endfunction
+command! -nargs=+ -complete=file_in_path Grep call s:Grep(<q-args>)
+
+nnoremap <leader>* :Grep <C-r><C-w><CR>
+xnoremap <leader>* y:<C-u>execute 'Grep ' . shellescape(@")<CR>
+
+" quickfix
+nnoremap <silent> ]q :cnext<CR>zz
+nnoremap <silent> [q :cprevious<CR>zz
+
+augroup vimrc_qf
+  autocmd!
+  autocmd QuickFixCmdPost [^l]* botright cwindow
+  autocmd FileType qf setlocal nonumber norelativenumber signcolumn=no
+        \ | nnoremap <buffer> q :cclose<CR>
+augroup END
+
+" tags
+set tags=./tags;,tags
+
+function! s:Ctags() abort
+  execute '!ctags -R --exclude=.git --exclude=node_modules'
+        \ . ' --exclude=dist --exclude=build .'
+  redraw!
+endfunction
+if executable('ctags')
+  command! Ctags call s:Ctags()
+endif
+
+" completion
+set complete=.,w,b,u,t,i
+set completeopt=menuone,noinsert,noselect
+set omnifunc=syntaxcomplete#Complete
+
+" clipboard
+set clipboard=
+
+function! s:PbcopyOp(type) abort
+  let l:save = @@
+  silent execute 'normal! `[v`]y'
+  call system('pbcopy', @@)
+  let @@ = l:save
+endfunction
+
+if !has('clipboard') && executable('pbcopy')
+  nnoremap <leader>y :set operatorfunc=<SID>PbcopyOp<CR>g@
+  nnoremap <leader>Y yy:call system('pbcopy', @@)<CR>
+  xnoremap <leader>y y:call system('pbcopy', @@)<CR>
+  nnoremap <leader>p :let @@=system('pbpaste')<CR>p
+endif
+
+" keymaps
 inoremap jk <Esc>
-inoremap kj <Esc>
 
-" Window navigation
-nnoremap <C-h> <C-w>h
-nnoremap <C-j> <C-w>j
-nnoremap <C-k> <C-w>k
-nnoremap <C-l> <C-w>l
+nnoremap <silent> <leader>/ :nohlsearch<CR>
 
-" Move lines (Alt-j/k)
-nnoremap <M-j> :m .+1<CR>==
-nnoremap <M-k> :m .-2<CR>==
-inoremap <M-j> <Esc>:m .+1<CR>==gi
-inoremap <M-k> <Esc>:m .-2<CR>==gi
-vnoremap <M-j> :m '>+1<CR>gv=gv
-vnoremap <M-k> :m '<-2<CR>gv=gv
+nnoremap <silent> ]e :m .+1<CR>==
+nnoremap <silent> [e :m .-2<CR>==
+xnoremap <silent> ]e :m '>+1<CR>gv=gv
+xnoremap <silent> [e :m '<-2<CR>gv=gv
 
-" Keep selection after indent
-vnoremap < <gv
-vnoremap > >gv
+xnoremap < <gv
+xnoremap > >gv
 
-" Sessions (replace auto-session)
-nnoremap <leader>ws :mksession! Session.vim<CR>
-nnoremap <leader>wr :source Session.vim<CR>
+inoremap , ,<C-g>u
+inoremap . .<C-g>u
+inoremap ( (<C-g>u
 
-" === PLUGIN: tokyonight ======================================================
-let g:tokyonight_style = 'night'
-let g:tokyonight_enable_italic = 1
+command! W execute 'w !sudo tee % > /dev/null' <Bar> edit!
+command! Trim keeppatterns %s/\s\+$//e
 
-" === PLUGIN: airline =========================================================
-let g:airline_theme = 'tokyonight'
-let g:airline_powerline_fonts = 1
-let g:airline#extensions#tabline#enabled = 1
-let g:airline#extensions#tabline#show_buffers = 0
-let g:airline#extensions#tabline#show_tabs = 1
-
-" === PLUGIN: NERDTree ========================================================
-let g:NERDTreeShowHidden = 1
-let g:NERDTreeMinimalUI = 1
-let g:NERDTreeWinSize = 40
-augroup vimrc_nerdtree
+" autocmds
+augroup vimrc_misc
   autocmd!
-  autocmd BufEnter * if (winnr("$") == 1 && exists("b:NERDTree") && b:NERDTree.isTabTree()) | quit | endif
+  autocmd BufReadPost * if line("'\"") >= 1 && line("'\"") <= line("$")
+        \ && &filetype !~# 'commit' | execute "normal! g`\"" | endif
+  autocmd BufEnter,FocusGained,InsertLeave,WinEnter *
+        \ if &number | setlocal relativenumber | endif
+  autocmd BufLeave,FocusLost,InsertEnter,WinLeave *
+        \ if &number | setlocal norelativenumber | endif
+  autocmd VimResized * wincmd =
 augroup END
 
-" === PLUGIN: fzf =============================================================
-let g:fzf_layout = { 'down': '40%' }
-
-" Pick file-list + grep backends based on what's available.
-" Santa-blocked machines (no brew binaries) fall back to git/find/grep — all
-" come with macOS or git itself, so they're always allowed.
-if executable('rg')
-  let $FZF_DEFAULT_COMMAND = "rg --files --hidden --follow --glob '!**/.git/*'"
-  command! -bang -nargs=* Rg
-    \ call fzf#vim#grep(
-    \   'rg --column --line-number --no-heading --color=always --smart-case '.shellescape(<q-args>),
-    \   1, fzf#vim#with_preview(), <bang>0)
-elseif executable('git')
-  " git ls-files: respects .gitignore; outside a repo it returns nothing,
-  " so combine with find as a fallback for non-repo dirs.
-  let $FZF_DEFAULT_COMMAND = "(git ls-files --cached --others --exclude-standard 2>/dev/null || find . -type f -not -path '*/.git/*')"
-  command! -bang -nargs=* Rg
-    \ call fzf#vim#grep(
-    \   'git grep --line-number --color=always --no-color '.shellescape(<q-args>).' || grep -rn --color=never --exclude-dir=.git '.shellescape(<q-args>).' .',
-    \   1, fzf#vim#with_preview(), <bang>0)
-else
-  let $FZF_DEFAULT_COMMAND = "find . -type f -not -path '*/.git/*'"
-  command! -bang -nargs=* Rg
-    \ call fzf#vim#grep(
-    \   'grep -rn --color=never --exclude-dir=.git '.shellescape(<q-args>).' .',
-    \   1, fzf#vim#with_preview(), <bang>0)
+if exists('##TerminalWinOpen')
+  autocmd TerminalWinOpen * setlocal nonumber norelativenumber signcolumn=no
 endif
 
-" === PLUGIN: gitgutter =======================================================
-let g:gitgutter_sign_added              = '+'
-let g:gitgutter_sign_modified           = '~'
-let g:gitgutter_sign_removed            = '-'
-let g:gitgutter_sign_removed_first_line = '-'
-let g:gitgutter_sign_modified_removed   = '~'
+" netrw
+let g:netrw_banner = 0
+let g:netrw_liststyle = 3
+let g:netrw_winsize = 25
+let g:netrw_localcopydircmd = 'cp -r'
+nnoremap <silent> - :Explore<CR>
 
-" === PLUGIN: sneak (leap-equivalent) =========================================
-let g:sneak#label = 1
-let g:sneak#s_next = 1
-
-" === PLUGIN KEYMAPS: fzf =====================================================
-nnoremap <silent> <leader>fn :Files<CR>
-nnoremap <silent> <leader>fg :Rg<CR>
-nnoremap <silent> <leader>fb :Buffers<CR>
-nnoremap <silent> <leader>fh :Helptags<CR>
-nnoremap <silent> <leader>fr :History<CR>
-nnoremap <silent> <leader>fR :Marks<CR>
-nnoremap <silent> <leader>fk :Maps<CR>
-nnoremap <silent> <leader>fc :Commands<CR>
-
-" === PLUGIN KEYMAPS: NERDTree ================================================
-nnoremap <silent> <C-b> :NERDTreeToggle<CR>
-nnoremap <silent> <C-i> :NERDTreeFocus<CR>
-
-" === PLUGIN KEYMAPS: git =====================================================
 " fugitive
-nnoremap <silent> <leader>gg :Git<CR>
-nnoremap <silent> <leader>gd :Gdiffsplit<CR>
-nnoremap <silent> <leader>gl :Git blame<CR>
-" gitgutter hunks
-nmap <leader>gj <Plug>(GitGutterNextHunk)
-nmap <leader>gk <Plug>(GitGutterPrevHunk)
-nmap <leader>gp <Plug>(GitGutterPreviewHunk)
-nmap <leader>gs <Plug>(GitGutterStageHunk)
-nmap <leader>gr <Plug>(GitGutterUndoHunk)
+nnoremap <leader>gs :Git<CR>
+nnoremap <leader>gb :Git blame<CR>
+nnoremap <leader>gd :Gdiffsplit<CR>
 
-" === COLORSCHEME (LAST) ======================================================
-silent! colorscheme tokyonight
+" statusline
+function! StatuslineGit() abort
+  if exists('*FugitiveHead')
+    let l:head = FugitiveHead()
+    return empty(l:head) ? '' : '  [' . l:head . ']'
+  endif
+  return ''
+endfunction
+
+set statusline=
+set statusline+=\ %<%f\ %h%w%m%r
+set statusline+=%{StatuslineGit()}
+set statusline+=%=
+set statusline+=%{&filetype}\ \ %{&fileformat}\ \ %l:%c\ \ %P\ 
+
+" colorscheme
+silent! colorscheme habamax
+
+" project local
+if filereadable('.vimlocal')
+  source .vimlocal
+endif
