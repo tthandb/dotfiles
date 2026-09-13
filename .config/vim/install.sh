@@ -1,103 +1,172 @@
 #!/usr/bin/env bash
-# Install plugins for vim/vimrc into ~/.vim/pack/plugins/start/
-# and symlink ~/.vimrc to this repo's vimrc.
-# Idempotent: existing plugins are git-pulled, missing ones cloned.
 set -euo pipefail
 
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+resolve() {
+  local t="$1" l
+  while [ -L "$t" ]; do
+    l="$(readlink "$t")"
+    case "$l" in
+      /*) t="$l" ;;
+      *)  t="$(dirname "$t")/$l" ;;
+    esac
+  done
+  [ -e "$t" ] || return 1
+  printf '%s/%s\n' "$(cd -P "$(dirname "$t")" && pwd -P)" "$(basename "$t")"
+}
+
+SCRIPT_DIR="$(cd -P "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)"
 VIMRC_SRC="$SCRIPT_DIR/.vimrc"
 VIMRC_DST="$HOME/.vimrc"
+PACK_DIR="$HOME/.vim/pack/plugins/start"
+UNDO_DIR="$HOME/.vim/undo"
 
-PACK_DIR="${HOME}/.vim/pack/plugins/start"
-mkdir -p "$PACK_DIR"
-
-# symlink ~/.vimrc -> this repo's vimrc
-if [ -L "$VIMRC_DST" ] && [ "$(readlink "$VIMRC_DST")" = "$VIMRC_SRC" ]; then
-  echo "vimrc   already linked"
+if [ -t 1 ]; then
+  B=$'\033[1m'; G=$'\033[32m'; Y=$'\033[33m'; R=$'\033[31m'; N=$'\033[0m'
 else
-  if [ -e "$VIMRC_DST" ] || [ -L "$VIMRC_DST" ]; then
+  B=''; G=''; Y=''; R=''; N=''
+fi
+info() { printf '%s\n' "$*"; }
+ok()   { printf '%s+%s %s\n' "$G" "$N" "$*"; }
+warn() { printf '%s!%s %s\n' "$Y" "$N" "$*"; }
+die()  { printf '%sx%s %s\n' "$R" "$N" "$*" >&2; exit 1; }
+
+command -v git >/dev/null 2>&1 || die "git is required"
+[ -f "$VIMRC_SRC" ] || die "cannot find $VIMRC_SRC"
+
+printf '\n%s== environment ==%s\n' "$B" "$N"
+
+if command -v vim >/dev/null 2>&1; then
+  VIM_BIN="$(command -v vim)"
+  VIM_VER="$(vim --version | head -1 | sed 's/^VIM - Vi IMproved //;s/ .*//')"
+  info "vim        $VIM_VER  ($VIM_BIN)"
+  case "$VIM_VER" in
+    9.*) ;;
+    8.2|8.2.*) warn "vim 8.2: 'wildoptions=fuzzy' unavailable" ;;
+    *)   warn "vim < 8.2: upgrade recommended" ;;
+  esac
+else
+  die "vim not found"
+fi
+
+if vim --version | grep -q '+clipboard'; then
+  ok "+clipboard"
+elif command -v pbcopy >/dev/null 2>&1; then
+  warn "-clipboard: falling back to pbcopy/pbpaste"
+else
+  warn "-clipboard and no pbcopy"
+fi
+
+if command -v ctags >/dev/null 2>&1; then
+  if ctags --version 2>/dev/null | grep -qi 'universal\|exuberant'; then
+    ok "ctags"
+  else
+    warn "ctags: BSD build, C/Pascal/Lisp only"
+  fi
+else
+  warn "no ctags: use [I and <leader>*"
+fi
+
+vim --version | grep -q '+terminal' && ok "+terminal" || warn "-terminal"
+
+printf '\n%s== vimrc ==%s\n' "$B" "$N"
+if [ -L "$VIMRC_DST" ] && [ "$(resolve "$VIMRC_DST" 2>/dev/null)" = "$VIMRC_SRC" ]; then
+  ok "already linked"
+else
+  if [ -L "$VIMRC_DST" ]; then
+    info "replacing stale symlink $VIMRC_DST"
+    rm -f "$VIMRC_DST"
+  elif [ -e "$VIMRC_DST" ]; then
     backup="$VIMRC_DST.backup.$(date +%Y%m%d%H%M%S)"
-    echo "vimrc   backing up existing $VIMRC_DST -> $backup"
+    n=1
+    while [ -e "$backup" ]; do
+      backup="$VIMRC_DST.backup.$(date +%Y%m%d%H%M%S).$n"
+      n=$((n + 1))
+    done
+    info "backing up $VIMRC_DST -> $backup"
     mv "$VIMRC_DST" "$backup"
   fi
-  echo "vimrc   linking $VIMRC_DST -> $VIMRC_SRC"
   ln -s "$VIMRC_SRC" "$VIMRC_DST"
+  ok "linked $VIMRC_DST -> $VIMRC_SRC"
 fi
+
+mkdir -p "$PACK_DIR"
+mkdir -p "$UNDO_DIR" && chmod 700 "$UNDO_DIR"
 
 PLUGINS=(
-  "tokyonight-vim https://github.com/ghifarit53/tokyonight-vim"
-  "vim-airline https://github.com/vim-airline/vim-airline"
-  "vim-airline-themes https://github.com/vim-airline/vim-airline-themes"
-  "fzf https://github.com/junegunn/fzf"
-  "fzf.vim https://github.com/junegunn/fzf.vim"
-  "nerdtree https://github.com/preservim/nerdtree"
-  "vim-fugitive https://github.com/tpope/vim-fugitive"
-  "vim-gitgutter https://github.com/airblade/vim-gitgutter"
-  "vim-surround https://github.com/tpope/vim-surround"
-  "vim-repeat https://github.com/tpope/vim-repeat"
-  "vim-commentary https://github.com/tpope/vim-commentary"
-  "auto-pairs https://github.com/jiangmiao/auto-pairs"
-  "vim-sneak https://github.com/justinmk/vim-sneak"
-  "vim-highlightedyank https://github.com/machakann/vim-highlightedyank"
+  "vim-repeat      https://github.com/tpope/vim-repeat"
+  "vim-surround    https://github.com/tpope/vim-surround"
+  "vim-commentary  https://github.com/tpope/vim-commentary"
+  "vim-fugitive    https://github.com/tpope/vim-fugitive"
 )
 
-cloned=0
-updated=0
-for entry in "${PLUGINS[@]}"; do
-  name="${entry%% *}"
-  url="${entry#* }"
-  dst="$PACK_DIR/$name"
-  if [ -d "$dst/.git" ]; then
-    echo "update  $name"
-    git -C "$dst" pull --ff-only --quiet
-    updated=$((updated + 1))
-  else
-    echo "clone   $name"
-    git clone --depth=1 --quiet "$url" "$dst"
-    cloned=$((cloned + 1))
-  fi
-done
+OPTIONAL=(
+  "targets.vim         https://github.com/wellle/targets.vim"
+  "vim-abolish         https://github.com/tpope/vim-abolish"
+  "vim-gitgutter       https://github.com/airblade/vim-gitgutter"
+  "vim-sneak           https://github.com/justinmk/vim-sneak"
+  "vim-highlightedyank https://github.com/machakann/vim-highlightedyank"
+  "vim-eunuch          https://github.com/tpope/vim-eunuch"
+  "vim-dispatch        https://github.com/tpope/vim-dispatch"
+)
 
-# fzf binary
-if ! command -v fzf >/dev/null 2>&1; then
-  echo "install fzf binary..."
-  case "$(uname -s)" in
-    Darwin)
-      if command -v brew >/dev/null 2>&1; then
-        brew install fzf
-      else
-        "$PACK_DIR/fzf/install" --bin --no-update-rc
-      fi
-      ;;
-    Linux)
-      "$PACK_DIR/fzf/install" --bin --no-update-rc
-      ;;
-    *)
-      echo "warn: install fzf manually: https://github.com/junegunn/fzf"
-      ;;
-  esac
+if [ "${VIM_OPTIONAL:-0}" = "1" ]; then
+  PLUGINS+=("${OPTIONAL[@]}")
 fi
 
-# ripgrep + fd (used by :Files / :Rg)
-# NOTE: a shell function named `rg` may exist (e.g. from Claude Code) — vim spawns
-# commands non-interactively, so we need the real binary on PATH.
-for bin in rg fd; do
-  if [ ! -x "/opt/homebrew/bin/$bin" ] && [ ! -x "/usr/local/bin/$bin" ] && \
-     ! /usr/bin/env -i PATH=/usr/bin:/bin command -v "$bin" >/dev/null 2>&1; then
-    echo "install $bin binary..."
-    case "$(uname -s)" in
-      Darwin)
-        command -v brew >/dev/null 2>&1 && brew install "${bin/rg/ripgrep}" \
-          || echo "warn: install brew, then 'brew install ripgrep fd'"
-        ;;
-      Linux)
-        echo "warn: install $bin via your package manager (apt/dnf/pacman)"
-        ;;
-    esac
+printf '\n%s== plugins ==%s\n' "$B" "$N"
+cloned=0; updated=0; failed=0
+declare -a WANTED=()
+
+for entry in "${PLUGINS[@]}"; do
+  read -r name url <<<"$entry"
+  [ -n "$name" ] || continue
+  WANTED+=("$name")
+  dst="$PACK_DIR/$name"
+
+  if [ -d "$dst/.git" ]; then
+    if git -C "$dst" pull --ff-only --quiet 2>/dev/null; then
+      updated=$((updated + 1))
+    else
+      warn "pull failed: $name"
+      failed=$((failed + 1))
+    fi
+  else
+    if git clone --depth=1 --quiet "$url" "$dst" 2>/dev/null; then
+      ok "cloned $name"
+      cloned=$((cloned + 1))
+    else
+      warn "clone failed: $name"
+      failed=$((failed + 1))
+    fi
   fi
 done
 
-# generate helptags for all installed plugins
-vim -u NONE -c 'helptags ALL' -c quit 2>/dev/null || true
+if [ "${VIM_NO_PRUNE:-0}" != "1" ]; then
+  pruned=0
+  for dir in "$PACK_DIR"/*/; do
+    [ -d "$dir" ] || continue
+    name="$(basename "$dir")"
+    keep=0
+    for w in "${WANTED[@]}"; do [ "$w" = "$name" ] && keep=1 && break; done
+    if [ "$keep" -eq 0 ] && [ "${VIM_OPTIONAL:-0}" != "1" ]; then
+      for o in "${OPTIONAL[@]}"; do
+        read -r oname _ <<<"$o"
+        [ "$oname" = "$name" ] && keep=1 && break
+      done
+    fi
+    if [ "$keep" -eq 0 ]; then
+      info "pruning $name"
+      rm -rf "$dir"
+      pruned=$((pruned + 1))
+    fi
+  done
+  [ "$pruned" -gt 0 ] && ok "pruned $pruned"
+fi
 
-echo "done. cloned=$cloned updated=$updated"
+for dir in "$PACK_DIR"/*/doc; do
+  [ -d "$dir" ] || continue
+  vim -u NONE -es -c "helptags $dir" -c quit >/dev/null 2>&1 || true
+done
+
+printf '\n%s== done ==%s  cloned=%s updated=%s failed=%s\n\n' \
+  "$B" "$N" "$cloned" "$updated" "$failed"
